@@ -1,0 +1,26 @@
+{
+    "name": "Shared",
+    "version": "1.0.0",
+    "description": "",
+    "keywords": "",
+    "repository":
+    {
+      "type": "git",
+      "url": "https://github.com/username/hello-world.git"
+    },
+    "authors":
+    [
+      {
+        "name": "",
+        "email": "",
+        "url": ""
+      }
+    ],
+    "license": "",
+    "homepage": "",
+    "dependencies": {
+    },
+    "frameworks": "*",
+    "platforms": "*"
+  }
+  
