@@ -24,9 +24,6 @@ void Sx1278::Init()
 
     DigitalWrite(ResetPin, 1);
 
-    char buf[512] = {0x0};
-    sprintf(buf, "Version: " BYTE_TO_BINARY_PATTERN "", BYTE_TO_BINARY(ReadRegister(REG_VERSION)));
-    Log(buf);
     assert(ReadRegister(REG_VERSION) == 0x12 && "Unmatching LoRa magic");
 
     Reset();
@@ -55,7 +52,7 @@ void Sx1278::Init()
 
     SetMode(EOpMode::Stdby);
 
-    Log("RFM95 Initialised");
+    Log("Sx1278 Initialised");
 }
 
 IncomingMessage* Sx1278::GetNextIncomingMessage()

@@ -1,4 +1,3 @@
-#define ESP32_IDF 1
 #ifdef ESP32_IDF
 #include "Sx1278_Idf.h"
 #include "Util.h"
