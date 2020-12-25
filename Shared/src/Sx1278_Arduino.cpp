@@ -1,4 +1,5 @@
-#include "RFM95Arduino.h"
+#ifdef ARDUINO
+#include "Sx1278_Arduino.h"
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -7,12 +8,12 @@
 // MSB first!
 SPISettings Settings = SPISettings(1000000, MSBFIRST, SPI_MODE0);
 
-void RFM95Arduino::DigitalWrite(uint8_t IO, uint8_t Value)
+void Sx1278_Arduino::DigitalWrite(uint8_t IO, uint8_t Value)
 {
     digitalWrite(IO, Value);
 }
 
-void RFM95Arduino::Write(uint8_t Address, const uint8_t *Data, size_t DataLength)
+void Sx1278_Arduino::Write(uint8_t Address, const uint8_t *Data, size_t DataLength)
 {
     SPI.beginTransaction(Settings);
     DigitalWrite(CsPin, 0);
@@ -25,7 +26,7 @@ void RFM95Arduino::Write(uint8_t Address, const uint8_t *Data, size_t DataLength
     SPI.endTransaction();
 }
 
-void RFM95Arduino::Read(uint8_t Address, size_t DataLength, uint8_t *OutBuffer)
+void Sx1278_Arduino::Read(uint8_t Address, size_t DataLength, uint8_t *OutBuffer)
 {
     SPI.beginTransaction(Settings);
     DigitalWrite(CsPin, 0);
@@ -38,31 +39,31 @@ void RFM95Arduino::Read(uint8_t Address, size_t DataLength, uint8_t *OutBuffer)
     SPI.endTransaction();
 }
 
-void RFM95Arduino::Wait(uint32_t Millis)
+void Sx1278_Arduino::Wait(uint32_t Millis)
 {
     delay(Millis);
 }
 
-void RFM95Arduino::SetupDIO0Interrupt()
+void Sx1278_Arduino::SetupDIO0Interrupt()
 {
-    attachInterrupt(digitalPinToInterrupt(Dio0Pin), std::bind(&RFM95Arduino::OnDIO0Interrupt, this), RISING);
+    attachInterrupt(digitalPinToInterrupt(Dio0Pin), std::bind(&Sx1278_Arduino::OnDIO0Interrupt, this), RISING);
 }
 
-void RFM95Arduino::OnDIO0Interrupt()
+void Sx1278_Arduino::OnDIO0Interrupt()
 {
-    RFM95::OnDIO0Interrupt();
+    Sx1278::OnDIO0Interrupt();
 }
 
-void RFM95Arduino::Log(const char *Text)
+void Sx1278_Arduino::Log(const char *Text)
 {
     if (Serial)
     {
-        Serial.print("[RFM95Arduino] ");
+        Serial.print("[Sx1278_Arduino] ");
         Serial.println(Text);
     }
 }
 
-void RFM95Arduino::PinMode(uint8_t IO, EIOMode Mode)
+void Sx1278_Arduino::PinMode(uint8_t IO, EIOMode Mode)
 {
     switch (Mode)
     {
@@ -80,9 +81,10 @@ void RFM95Arduino::PinMode(uint8_t IO, EIOMode Mode)
     }
 }
 
-void RFM95Arduino::Init()
+void Sx1278_Arduino::Init()
 {
     SPI.begin();
 
-    RFM95::Init();
+    Sx1278::Init();
 }
+#endif

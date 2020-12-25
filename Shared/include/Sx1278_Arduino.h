@@ -1,11 +1,12 @@
 #pragma once
 
-#include "RFM95.h"
+#ifdef ARDUINO
+#include "Sx1278.h"
 
-class RFM95Arduino : public RFM95
+class Sx1278_Arduino : public Sx1278
 {
 public:
-  RFM95Arduino(uint8_t CsPin = 15, uint8_t Dio0Pin = 4, uint8_t ResetPin = 0) : RFM95(CsPin, Dio0Pin, ResetPin) { }
+  Sx1278_Arduino(uint8_t CsPin = 15, uint8_t Dio0Pin = 4, uint8_t ResetPin = 0) : Sx1278(CsPin, Dio0Pin, ResetPin) { }
   virtual void Init() override;
 
 protected:
@@ -19,3 +20,4 @@ protected:
   virtual void DigitalWrite(uint8_t IO, uint8_t Value) override;
   virtual void PinMode(uint8_t IO, EIOMode Mode) override;
 };
+#endif

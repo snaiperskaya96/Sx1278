@@ -1,10 +1,17 @@
+#ifdef ARDUINO
 #include <Arduino.h>
 #include <SPI.h>
 
-#include "RFM95Arduino.h"
+#include "Sx1278_Arduino.h"
 #include "Util.h"
 
-RFM95Arduino RFM(5, 14);
+#ifdef ESP8266
+Sx1278 RFM;
+const uint8_t LedPin = D3;
+#else
+Sx1278_Arduino RFM(5, 14);
+const uint8_t LedPin = 22;
+#endif 
 
 void setup()
 {
@@ -13,8 +20,8 @@ void setup()
   RFM.Init();
   RFM.Receive();
 
-  pinMode(22, OUTPUT);
-  digitalWrite(22, LOW);
+  pinMode(LedPin, OUTPUT);
+  digitalWrite(LedPin, LOW);
   Serial.println("Server");
 }
 
@@ -36,7 +43,7 @@ void loop()
     }
   }
 
-  digitalWrite(22, bLedOn ? HIGH : LOW);
+  digitalWrite(LedPin, bLedOn ? HIGH : LOW);
   delay(Delay);
   if (bLedOn)
   {
@@ -48,3 +55,4 @@ void loop()
     }
   }
 }
+#endif

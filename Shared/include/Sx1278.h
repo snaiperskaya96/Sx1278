@@ -35,7 +35,8 @@ enum class EIOMode
 {
     Output,
     Input,
-    PullUp
+    PullUp,
+    Special // esp32 spi
 };
 
 struct IncomingMessage
@@ -45,16 +46,16 @@ struct IncomingMessage
     bool bRead = true;
 };
 
-class RFM95
+class Sx1278
 {
 public:
-    RFM95(uint8_t CsPin = 15, uint8_t Dio0Pin = 4, uint8_t ResetPin = 0) : CsPin(CsPin), Dio0Pin(Dio0Pin), ResetPin(ResetPin) {}
+    Sx1278(uint8_t CsPin = 15, uint8_t Dio0Pin = 4, uint8_t ResetPin = 0) : CsPin(CsPin), Dio0Pin(Dio0Pin), ResetPin(ResetPin) {}
     virtual void Init();
     virtual void Reset();
     bool IsMessageAvailable() const { return bMessageAvailable; }
-    IncomingMessage* GetNextIncomingMessage();
+    IncomingMessage *GetNextIncomingMessage();
     uint8_t GetNumMessageBuffers() const { return MAX_INC_MESSAGES; }
-    void TransmitData(const uint8_t* Buffer, size_t BufferLength);
+    void TransmitData(const uint8_t *Buffer, size_t BufferLength);
     // Timeout in milliseconds - 0 is infinite
     void Receive(uint32_t Timeout = 0);
     void SetMode(EOpMode Mode);
@@ -65,26 +66,29 @@ public:
 
     virtual uint8_t ReadRegister(uint8_t Address);
     virtual void WriteRegister(uint8_t Address, uint8_t Value);
-protected:
-    virtual void Write(uint8_t Address, const uint8_t* Data, size_t DataLength) = 0;
-    virtual void Read(uint8_t Address, size_t DataLength, uint8_t* OutBuffer) = 0;
 
     virtual void Wait(uint32_t Millis) = 0;
-    virtual void SetupDIO0Interrupt() = 0;
     virtual void DigitalWrite(uint8_t IO, uint8_t Value) = 0;
     virtual void PinMode(uint8_t IO, EIOMode Mode) = 0;
+protected:
+    virtual void Write(uint8_t Address, const uint8_t *Data, size_t DataLength) = 0;
+    virtual void Read(uint8_t Address, size_t DataLength, uint8_t *OutBuffer) = 0;
+
+    virtual void SetupDIO0Interrupt() = 0;
 
     virtual void OnDIO0Interrupt();
-    virtual void Log(const char* Text);
+    virtual void Log(const char *Text);
     virtual void OnMessageReceived();
+
 protected:
-    uint8_t CsPin = 15;
-    uint8_t Dio0Pin = 4;
-    uint8_t ResetPin = 0;
+    uint8_t CsPin;
+    uint8_t Dio0Pin;
+    uint8_t ResetPin;
     bool bMessageAvailable = false;
     IncomingMessage MessageBuffers[MAX_INC_MESSAGES];
     uint8_t AvailableBufferIndex = 0;
     uint8_t NextIncomingMessageIndex = 0;
+
 protected:
     static constexpr uint8_t SPI_WRITE = 0x80;
 
@@ -113,5 +117,4 @@ protected:
 
     static constexpr float FXOSC = 32000000.f;
     static constexpr float FSTEP = FXOSC / 524288;
-
 };

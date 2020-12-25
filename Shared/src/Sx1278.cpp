@@ -1,4 +1,4 @@
-#include "RFM95.h"
+#include "Sx1278.h"
 #include <cassert>
 #include <stdio.h>
 #include <cstring>
@@ -15,15 +15,18 @@ void ReplaceInString(char ReplaceWhat, char WithWhat, char *String, size_t Strin
     }
 }
 
-void RFM95::Init()
+void Sx1278::Init()
 {
-    Log("RFM95::Init");
+    Log("Sx1278::Init");
     PinMode(ResetPin, EIOMode::Output);
     PinMode(Dio0Pin, EIOMode::Input);
     PinMode(CsPin, EIOMode::Output);
 
     DigitalWrite(ResetPin, 1);
 
+    char buf[512] = {0x0};
+    sprintf(buf, "Version: " BYTE_TO_BINARY_PATTERN "", BYTE_TO_BINARY(ReadRegister(REG_VERSION)));
+    Log(buf);
     assert(ReadRegister(REG_VERSION) == 0x12 && "Unmatching LoRa magic");
 
     Reset();
@@ -55,7 +58,7 @@ void RFM95::Init()
     Log("RFM95 Initialised");
 }
 
-IncomingMessage* RFM95::GetNextIncomingMessage()
+IncomingMessage* Sx1278::GetNextIncomingMessage()
 {
     IncomingMessage* NextMessage = &MessageBuffers[NextIncomingMessageIndex];
     if (NextMessage && !NextMessage->bRead)
@@ -69,7 +72,7 @@ IncomingMessage* RFM95::GetNextIncomingMessage()
     return nullptr;
 }
 
-void RFM95::OnMessageReceived()
+void Sx1278::OnMessageReceived()
 {
     const uint8_t IncSize = ReadRegister(REG_FIFO_RX_NB_BYTES);
     WriteRegister(REG_FIFO_ADDR_PTR, ReadRegister(REG_FIFO_RX_CURRENT_ADDR));
@@ -99,7 +102,7 @@ void RFM95::OnMessageReceived()
     }
 }
 
-void RFM95::Receive(uint32_t Timeout)
+void Sx1278::Receive(uint32_t Timeout)
 {
     assert(Timeout == 0 && "Timed receive not implemented");
     EOpMode CurrentMode = GetMode();
@@ -116,7 +119,7 @@ void RFM95::Receive(uint32_t Timeout)
     Log("Waiting for messages");
 }
 
-void RFM95::SetMode(EOpMode Mode)
+void Sx1278::SetMode(EOpMode Mode)
 {
     const uint8_t LoraLongRange = 0x80; // 10000000;
 
@@ -140,18 +143,18 @@ void RFM95::SetMode(EOpMode Mode)
     assert(GetMode() == Mode);
 }
 
-EOpMode RFM95::GetMode()
+EOpMode Sx1278::GetMode()
 {
     return (EOpMode)(ReadRegister(REG_OP_MODE) & 0x7);
 }
 
-bool RFM95::CanTransmit()
+bool Sx1278::CanTransmit()
 {
     const EOpMode Mode = GetMode();
     return Mode == EOpMode::Sleep || Mode == EOpMode::Stdby;
 }
 
-void RFM95::TransmitData(const uint8_t *Buffer, size_t BufferLength)
+void Sx1278::TransmitData(const uint8_t *Buffer, size_t BufferLength)
 {
     SetMode(EOpMode::Stdby);
 
@@ -175,7 +178,7 @@ void RFM95::TransmitData(const uint8_t *Buffer, size_t BufferLength)
     SetMode(EOpMode::Tx);
 }
 
-void RFM95::OnDIO0Interrupt()
+void Sx1278::OnDIO0Interrupt()
 {
     const uint8_t IrqFlags = ReadRegister(REG_IRQ_FLAGS);
     WriteRegister(REG_IRQ_FLAGS, 0xFF); // Clear IRQ flags
@@ -204,7 +207,7 @@ void RFM95::OnDIO0Interrupt()
     }
 }
 
-void RFM95::SetFrequency(float Frequency)
+void Sx1278::SetFrequency(float Frequency)
 {
     const uint32_t Freq = (Frequency * 1000000.f) / FSTEP;
     WriteRegister(REG_FRF_MSB, (Freq >> 16) & 0xff);
@@ -212,23 +215,23 @@ void RFM95::SetFrequency(float Frequency)
     WriteRegister(REG_FRF_LSB, Freq & 0xff);
 }
 
-void RFM95::Log(const char *Text)
+void Sx1278::Log(const char *Text)
 {
 }
 
-uint8_t RFM95::ReadRegister(uint8_t Address)
+uint8_t Sx1278::ReadRegister(uint8_t Address)
 {
     static uint8_t OutBuffer = 0;
     Read(Address, 1, &OutBuffer);
     return OutBuffer;
 }
 
-void RFM95::WriteRegister(uint8_t Address, uint8_t Value)
+void Sx1278::WriteRegister(uint8_t Address, uint8_t Value)
 {
     Write(Address, &Value, 1);
 }
 
-void RFM95::Reset()
+void Sx1278::Reset()
 {
     DigitalWrite(ResetPin, 0);
     Wait(1); // It's meant to be 0.1ms but hey
@@ -236,7 +239,7 @@ void RFM95::Reset()
     Wait(5);
 }
 
-void RFM95::SetPreamble(uint16_t Preamble)
+void Sx1278::SetPreamble(uint16_t Preamble)
 {
     uint8_t Lsb = Preamble & 0xF;
     uint8_t Msb = (Preamble >> 4) & 0xF;

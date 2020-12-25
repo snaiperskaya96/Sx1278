@@ -1,9 +1,15 @@
+#ifdef ARDUINO
 #include <Arduino.h>
 #include <SPI.h>
 
-#include "RFM95Arduino.h"
+#include "Sx1278_Arduino.h"
 
-RFM95Arduino RFM(5, 14);
+#ifdef ESP8266
+Sx1278 RFM;
+#else
+Sx1278_Arduino RFM(5, 14);
+#endif 
+
 
 void setup()
 {
@@ -24,3 +30,4 @@ void loop()
   
   delay(1000);
 }
+#endif
