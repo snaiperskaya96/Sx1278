@@ -1,22 +1,22 @@
 {
-    "name": "Shared",
+    "name": "Sx1278",
     "version": "1.0.0",
     "description": "",
     "keywords": "",
     "repository":
     {
       "type": "git",
-      "url": "https://github.com/username/hello-world.git"
+      "url": "https://github.com/snaiperskaya96/Sx1278.git"
     },
     "authors":
     [
       {
-        "name": "",
-        "email": "",
-        "url": ""
+        "name": "Jury Verrigni",
+        "email": "me@skaya.dev",
+        "url": "skaya.dev"
       }
     ],
-    "license": "",
+    "license": "MIT",
     "homepage": "",
     "dependencies": {
     },
